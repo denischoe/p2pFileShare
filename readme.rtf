@@ -1,0 +1,75 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fnil\fcharset129 AppleSDGothicNeo-Regular;\f1\fswiss\fcharset0 Helvetica;\f2\fnil\fcharset0 Monaco;
+}
+{\colortbl;\red255\green255\blue255;\red254\green73\blue64;\red164\green8\blue0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14120\viewh11940\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b\fs24 \cf0 \'c0\'cc \'c7\'c1\'b7\'ce\'b1\'d7\'b7\'a5\'c0\'ba \'b5\'ce\'b8\'ed\'c0\'c7 \'c0\'af\'c0\'fa\'b0\'a1 \'b5\'a5\'bd\'ba\'c5\'a9\'c5\'be \'c8\'a4\'c0\'ba \'b8\'f0\'b9\'d9\'c0\'cf\'bf\'a1\'bc\'ad \cf2 \'c5\'a9\'b7\'d2 \cf0 \'ba\'ea\'b6\'f3\'bf\'ec\'c0\'fa(>=50)\'b8\'a6 \'c5\'eb\'c7\'d8  \'c6\'c4\'c0\'cf\'c0\'bb \'bd\'c7\'bd\'c3\'b0\'a3\'c0\'b8\'b7\'ce \'b0\'f8\'c0\'af \'c7\'d2 \'bc\'f6 \'c0\'d6\'b4\'c2 \'c7\'c1\'b7\'ce\'b1\'d7\'b7\'a5\'c0\'d4\'b4\'cf\'b4\'d9.\
+
+\b0 (\'b5\'ce\'b8\'ed \'c0\'cc\'bb\'f3\'c0\'c7 \'c0\'af\'c0\'fa\'b4\'c2 \'c1\'f6\'bf\'f8\'c7\'cf\'c1\'f6 \'be\'ca\'bd\'c0\'b4\'cf\'b4\'d9. )
+\b \
+
+\b0 \
+\
+
+\b \'bc\'ad\'b9\'f6 \'b1\'b8\'b5\'bf \'b9\'e6\'b9\'fd 
+\b0 on mac osx system. ( python >= 2 \'b9\'f6\'c0\'fc \'c7\'ca\'bf\'e4)
+\f1 \
+\
+	1. 
+\f0 \'b8\'d5 \'c0\'fa \'c5\'cd\'b9\'cc\'b3\'ce\'c3\'a2\'c0\'bb \'bf\'ad\'b0\'ed signalingServer.py (\'bc\'ad\'b9\'f6 \'c7\'c1\'b7\'ce\'b1\'d7\'b7\'a5) \'c6\'c4\'c0\'cf\'c0\'cc \'c0\'d6\'b4\'c2 \'b0\'f7\'c0\'b8\'b7\'ce \'b5\'e9\'be\'ee\'b0\'a9\'b4\'cf\'b4\'d9.\
+     		\'bf\'b9) cd /FileLocation/\
+\
+	2. \'b0\'a1\'bb\'f3 \'c8\'af\'b0\'e6\'bf\'a1\'bc\'ad \'bc\'ad\'b9\'f6\'b8\'a6 \'b1\'b8\'b5\'bf \'c7\'cf\'b1\'e2 \'c0\'a7\'c7\'d8 virtualenv \'c7\'c1\'b7\'ce\'b1\'d7\'b7\'a5\'c0\'bb \'b4\'d9\'bf\'ee \'b9\'de\'be\'c6\'be\'df\'c7\'d5\'b4\'cf\'b4\'d9.\
+		\'bf\'b9) pip install virtualenv\
+	3. \'b4\'d9\'c0\'bd \'c7\'c1\'b7\'ce\'b1\'d7\'b7\'a5\'c0\'bb \'bd\'c7\'c7\'e0\'bd\'c3\'c4\'d1 \'b0\'a1\'bb\'f3 \'c8\'af\'b0\'e6\'c0\'bb \'b8\'b8\'b5\'ec\'b4\'cf\'b4\'d9.\
+		\'bf\'b9) 
+\f2\fs20 \CocoaLigature0 sudo virtualenv venv \
+	
+\fs24 4.
+\f0 \'b0\'a1\'bb\'f3 \'c8\'af\'b0\'e6\'c0\'cc \'b8\'b8\'b5\'e9\'be\'ee\'c1\'b3\'c0\'b8\'b8\'e9 \'b0\'a1\'bb\'f3\'c8\'af\'b0\'e6\'c0\'bb \'c8\'b0\'bc\'ba\'c8\'ad\'c7\'d5\'b4\'cf\'b4\'d9.\CocoaLigature1 \
+     		\'bf\'b9) source venv/bin/activate\
+		- \'c1\'be\'b7\'e1\'bd\'c3 deactivate \
+		- \'bc\'ba\'b0\'f8\'bd\'c3 (venv)\'c7\'a5\'bd\'c3\'b0\'a1 \'b8\'c7 \'bf\'de\'c2\'ca\'b3\'a1\'bf\'a1 \'ba\'b8\'c0\'d4\'b4\'cf\'b4\'d9.\
+	5. \'c0\'cc\'c8\'c4 pip \'c0\'bb \'c0\'cc\'bf\'eb\'c7\'cf\'bf\'a9 \'c7\'ca\'bf\'e4\'c7\'d1 \'b8\'f0\'b5\'e2\'b5\'ee\'c0\'bb \'bc\'b3\'c4\'a1 \'c7\'d5\'b4\'cf\'b4\'d9.\
+		\'bf\'b9) 
+\fs20 sudo
+\fs24  
+\f2\fs20 \CocoaLigature0 pip install Flask flask-socketio\
+		   
+\f0\fs24 \CocoaLigature1 \
+	3. \'b8\'f0\'b5\'e2\'b5\'e9\'c0\'cc \'b4\'d9 \'bc\'b3\'c4\'a1\'b5\'c7\'be\'fa\'c0\'b8\'b8\'e9  signalingServer.py \'b8\'a6 \'bd\'c7\'c7\'e0 \'bd\'c3\'c5\'b5\'b4\'cf\'b4\'d9.\
+	       \'bf\'b9) python signalingServer.py (optional url)\
+	       \'bf\'b9)python signalingServer.py 192.168.X.X\
+\
+	
+\f1  ( 
+\f0 \'ba\'b0\'b5\'b5\'c0\'c7 \'c0\'a5 \'bc\'ad\'b9\'f6\'b8\'a6 \'c0\'cc\'bf\'eb \'c7\'d2\'bd\'c3\'bf\'a1\'b4\'c2 \'b1\'d7 \'bc\'ad\'b9\'f6\'bf\'a1 \'b8\'c2\'b4\'c2 python wsgi \'b8\'f0\'b5\'e2\'bc\'b3\'c4\'a1\'bf\'cd virtual host conf \'ba\'af\'b0\'e6\'c0\'cc \'c7\'ca\'bf\'e4\'c7\'d5\'b4\'cf\'b4\'d9. )\
+\
+
+\b \'be\'db \'bd\'c7\'c7\'e0\'b9\'e6\'b9\'fd ( chrome web browser \'c0\'cc\'bf\'eb \'b9\'d9\'b6\'f7.)\
+\
+
+\b0 	1. \'b8\'d5\'c0\'fa \'b5\'ce\'b8\'ed \'c8\'a4\'c0\'ba \'c7\'d1\'b8\'ed\'c0\'c7 \'c0\'af\'c0\'fa\'b0\'a1 \'be\'db\'c0\'bb \'bf\'b1\'b4\'cf\'b4\'d9.\
+		\'bf\'b9
+\b )
+\b0  localhost:5000/  or 192.X.X.X:5000/ on the LAN.   \
+\
+	2. \'b9\'de\'b0\'ed\'c0\'da \'c7\'cf\'b4\'c2 \'bb\'e7\'b6\'f7\'c0\'ba offer \'b9\'f6\'c6\'b0\'c0\'bb \'b4\'a9\'b8\'a3\'b8\'e9 \'ba\'b8\'b3\'bb\'b0\'ed\'c0\'da\'c7\'cf\'b4\'c2 \'bb\'e7\'b6\'f7\'c0\'c7 \'ba\'ce\'b6\'f3\'bf\'ec\'c0\'fa\'bf\'a1 \'be\'cb\'b6\'f7\'c3\'a2\'c0\'bb \'b6\'d9\'bf\'f3\'b4\'cf\'b4\'d9. \
+\
+	3. \'b1\'d7\'b7\'af\'b8\'e9 \'ba\'b8\'b3\'bb\'b4\'c2 \'bb\'e7\'b6\'f7\'c0\'ba send \'b9\'f6\'c6\'b0\'c0\'bb \'b4\'ad\'b7\'af \'bf\'f8\'c7\'cf\'b4\'c2 \'c6\'c4\'c0\'cf\'c0\'bb \'ba\'b8\'b3\'c0\'b4\'cf\'b4\'d9.\
+\
+	4. \'c0\'fc\'bc\'db\'c0\'cc \'b3\'a1\'b3\'aa\'b8\'e9 \'b9\'de\'b4\'c2\'bb\'e7\'b6\'f7 \'c0\'a5 \'c3\'a2\'bf\'a1 \'be\'cb\'b6\'f7 \'b8\'de\'bc\'bc\'c1\'f6\'bf\'cd \'c7\'d4\'b2\'b2 \'b4\'d9\'bf\'ee\'b7\'ce\'b5\'e5 \'b8\'b5\'c5\'a9\'b0\'a1 \'bb\'fd\'b1\'e9\'b4\'cf\'b4\'d9.\
+\
+	5. \'ba\'b8\'b3\'bb\'b4\'c2 \'bb\'e7\'b6\'f7\'c0\'ba \'b1\'d7 \'c8\'c4\'bf\'a1 \'b0\'e8\'bc\'d3 \'bf\'f8\'c7\'cf\'b4\'c2 \'c6\'c4\'c0\'cf\'c0\'bb \'c1\'f6\'bc\'d3\'c0\'fb\'c0\'b8\'b7\'ce \'ba\'b8\'b3\'be \'bc\'f6 \'c0\'d6\'c1\'f6\'b8\'b8 \'b1\'d7\'c0\'fc\'bf\'a1 \'ba\'b8\'b3\'c2\'b4\'f8 \'c6\'c4\'c0\'cf\'c0\'ba \'b9\'ab\'bd\'c3 \'b5\'cb\'b4\'cf\'b4\'d9.\
+\
+	- \'ba\'b8\'b3\'bb\'b4\'c2 \'bb\'e7\'b6\'f7\'b0\'fa \'b9\'de\'b4\'c2\'bb\'e7\'b6\'f7\'c0\'bb \'b9\'d9\'b2\'d9\'b0\'ed \'bd\'cd\'b4\'d9\'b8\'e9 \'b1\'d7\'b3\'c9 \'bb\'f5\'b7\'ce\'b0\'ed\'c4\'a7 \'c7\'cf\'bd\'c3\'b8\'e9 \'b5\'cb\'b4\'cf\'b4\'d9 ^^;;\
+
+\b \
+	\cf3 \'c1\'d6\'c0\'c7 : \'c7\'d1\'b1\'db\'c0\'cc\'b8\'a7 \'c6\'c4\'c0\'cf\'c0\'cc \'b5\'c7\'c1\'f6 \'be\'ca\'c0\'bb\'bd\'c3 \'bf\'b5\'b9\'ae \'c0\'b8\'b7\'ce\'b8\'b8 \'b5\'c7\'be\'ee\'c0\'d6\'b4\'c2  \'c6\'c4\'c0\'cf\'c0\'bb \'ba\'b8\'b3\'bb\'bd\'c3\'b1\'e2 \'b9\'d9\'b6\'f8\'b4\'cf\'b4\'d9.\cf0 \
+\
+	
+\b0 \
+\
+}

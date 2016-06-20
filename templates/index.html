@@ -1,0 +1,458 @@
+<html>
+<head><title> NARAN!</title></head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+	<style>
+		.w3-myfont {
+  			font-family: "Comic Sans MS", cursive, sans-serif;
+		}
+		a {
+   		 color: blue;
+		}		
+	</style>
+
+	<script type="text/javascript"
+		src="http://code.jquery.com/jquery-1.11.1.min.js">
+	</script>
+
+	<script type="text/javascript" 
+		src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.6/socket.io.min.js">
+	</script>
+<body>
+	<div id = "container" class = "w3-margin-left w3-margin-right w3-myfont">
+	<header class="w3-container w3-teal ">
+	  	<h1>share file with peer to peer</h1>
+	</header>
+
+		<!--Getting access to file usin input-file tag -->
+		
+		<button type="button" id="offer-button" class = "w3-btn w3-white w3-border w3-border-blue w3-round">Offer ~</button>
+
+		<input type="file" id="fileLoader" name="files" title="Load File" style= "display:none"/>
+		<input type="button" id="btnOpenFileDialog" value = "Send!!!" class = "w3-btn w3-white w3-border w3-border-red w3-round-large"/>
+
+		
+
+		<p> File Status</p>
+		<div id="chatArea"></div>
+		<div id= "download-div"> <a id="download"></a> </div>
+
+		<div class = "w3-container w3-myfont"> 
+		
+		<div id= "send-progress">
+			<div class="label">Send progress: </div>
+      		<progress id="send" max="0" value="0"></progress>
+		</div>
+		<div id="receive-progress">
+			<div class="label">Receive progress: </div>
+      		<progress id="receive" max="0" value="0"></progress>
+		</div>
+
+		</div>
+	
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+
+			{% if url  %}
+			   var socket = io.connect("{{url}}:5000",{port: 5000, rememberTransport: false});
+			{% else %}
+			   //var socket = io.connect("127.0.0.1:5000" ,{port: 5000, rememberTransport: false});
+			{% endif%}
+			  // var socket = io.connect("http://69168a80.ngrok.io/" );
+			var offerer;
+
+			// varable for webrtc
+			var configuration = { 
+        		 "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] 
+      		};
+      		var peerConnection;
+      		var dataChannel;
+      		var receivedChannel;
+      		var readyForCandidate;
+
+      		///for file
+      		var file;
+      		var chunkSize = 16384;
+      		var maxSendingFile = 4000000000;
+      		var fileSize = 0;
+      		var filename ="";
+      		var receiveBuffer = [];
+			var receivedSize = 0;
+
+			// when offer get clicked, first make this one as offerer
+			$('#offer-button').click(function() {
+
+				// it is saying that he wanna be a receiver for file transfer 
+				// but in a webrtc context, it will be a offerer indicating he's offering to make rtc connection to the other peer.
+				$('#btnOpenFileDialog').attr("disabled","disabled");
+				$('#send-progress').hide();
+				$('#receive-progress').show();
+
+				offerer = true;
+				// create peer and data channel
+				createPeerConnection();	
+				// create offer and send it to signal server
+				peerConnection.createOffer(function(offer){
+					var obj = {type: "offer", offer: offer};
+					socket.send(JSON.stringify(obj));
+
+					peerConnection.setLocalDescription(offer);
+
+				},function (error) { 
+         			alert("Error when creating an offer");
+				});
+
+
+			});
+////////////////////this is websocket message for signaling to the signalling server for Webrtc//
+			// got some message from signalling server
+			socket.on('message',function(msg){
+			
+				//console.log(JSON.parse(msg));
+
+				var data = JSON.parse(msg)
+
+				switch(data.type) { 
+     				
+     				 //when somebody wants to make a connection with us 
+     				case "offer": 
+     					console.log(offerer);
+     						if(offerer){
+
+     						}else{
+
+     							alert("you became sender so you click send!!! button ^.^")
+     							$('#offer-button').attr('disabled','disabled');
+
+     							createPeerConnection();
+     							handleOffer(data.offer); 
+     						}
+        				break; 
+
+      				case "answer": 
+      					if(offerer){
+								handleAnswer(data.answer); 
+      					}else{
+
+      					}
+         				break; 
+
+      				//when a remote peer sends an ice candidate to us 
+      				case "candidate":
+         				handleCandidate(data.candidate); 
+         				break; 
+
+      				case "leave": 
+         				handleLeave(); 
+         				break; 
+
+         			case "file":
+         				handleFile(data.file);
+      				default: 
+         			break; 
+   				} 
+
+			
+			});
+//////////////////event handler for buttons////////////////////////////////////			
+			// when click send, it will trigger fileLoader
+			$('#btnOpenFileDialog').click(function(){
+				$("#fileLoader").click();
+			});
+/*
+			$('#sendMsgBtn').click(function(){
+				var msg = $('#msgInput').val();
+				console.log(msg);
+				 //sending a message to a connected peer 
+				 if(offerer) {
+				 	dataChannel.send(msg);
+				 }else {
+				 	receivedChannel.send(msg);
+
+				 }
+
+   				$('#msgInput').val(''); 
+			});
+*/
+			
+//////////////////////////Web RTC functions ~~~ /////////////////////////
+			RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+            RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
+            RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+			function createPeerConnection(){
+				try{
+					//create peerconnection and add icecandidate handling
+					//peerConnection = new webkitRTCPeerConnection(configuration, {optional: [{RtpDataChannels: true},{DtlsSrtpKeyAgreement: true}]});
+
+					// with null then i got dtls/sctp in offer and answer why..?
+					window.pc = peerConnection = new webkitRTCPeerConnection(configuration);
+					
+					// when we got icecandidate from ice agent and trying to send it to remote.
+					peerConnection.onclose = function(e){
+						console.log("peerConnection.onclose : "+ e);
+					};
+					peerConnection.onicecandidate = function(event){
+						if (!peerConnection || !event || !event.candidate) return;
+
+						if(event.candidate){
+
+							console.log("iceCandidate From ice agent");
+							console.log(event.candidate);
+							// need to saparate them since it will give me an weird error 
+							// since something like 1 is not an object balch error can not be JSOn
+
+							/*
+							var candidate = {
+                      		    sdpMLineIndex: event.candidate.sdpMLineIndex,
+                        		sdpMid: event.candidate.sdpMid,
+                        		candidate: event.candidate.candidate
+                    		};
+							*/
+							var obj = {type: "candidate", candidate: event.candidate};
+							socket.send(JSON.stringify(obj));
+							
+						}
+						
+					};
+					
+
+					createDataChannel();
+					/*
+					if(offerer){
+						createDataChannel();
+					}else {
+						peerConnection.ondatachannel = function (evt) {
+     							alert('ondatachannel');
+    							dataChannel = evt.channel;
+    							setupChat();
+							};
+					}
+					*/
+      
+				}catch(e){
+						console.log("createPeerConnection() failed"+ e);
+				}
+			}
+
+			function createDataChannel(){
+				console.log("createDataChannel");
+				if(offerer){
+				// create data channel and add handlings
+					window.dataChannel = dataChannel = peerConnection.createDataChannel("channel1", {reliable:false});
+					
+					dataChannel.onerror = function (error) { 
+        				 console.log("dataChannel error:", error); 
+      				}; 
+		
+     				 //when we receive a message from the other peer, display it on the screen 
+      				dataChannel.onmessage = function (event) { 
+      					onmessageHandler(event);
+      					console.log("comming onmessage");
+      					console.log(event.data);
+
+         				
+      				}; 
+					dataChannel.onopen = function(){
+						console.log("------ DATACHANNEL OPENED ------");
+						dataChannel.send("heyheyhey");
+						console.log("comming to opened after sending message");
+					};
+					}else {
+			
+					peerConnection.ondatachannel = function(event){
+						console.log("-------ondatachannel fired");
+						window.receivedChannel = receivedChannel = event.channel;
+							
+
+							receivedChannel.onmessage = function(event){
+								console.log("receivedChaneel");
+								
+								//console.log(event.data.substring(0,3));
+							};
+
+							receivedChannel.onclose = function(event){
+								console.log("will close later"); // to do
+							}
+
+					};
+					}
+      				dataChannel.onclose = function () { 
+         				console.log("data channel is closed"); 
+      				};
+
+
+      				
+			}
+
+			function handleOffer(offer){
+				console.log('handle Offer');
+				peerConnection.setRemoteDescription(new RTCSessionDescription(offer), function onremoteSDPsuccess(){
+						console.log("setremoteDescription with offer success");
+						console.log("offer");
+						console.log(offer);
+						//create answer to offer
+				peerConnection.createAnswer(function(answer){
+					peerConnection.setLocalDescription(answer);
+					var obj = {type:"answer", answer:answer};
+					socket.send(JSON.stringify(obj));
+					readyForCandidate = true;
+					handleCandidate(candidates);
+				},function(error){
+					alert("Error when creating an answer"); 
+				});
+				}, function(error){
+						console.log("setremoteDescription error"+ error);
+				});
+
+				/*
+				//create answer to offer
+				peerConnection.createAnswer(function(answer){
+					peerConnection.setLocalDescription(answer);
+					var obj = {type:"answer", answer:answer};
+					socket.send(JSON.stringify(obj));
+				},function(error){
+					alert("Error when creating an answer"); 
+				});
+				*/
+			}
+
+			//when we got an answer from a remote user 
+			function handleAnswer(answer) { 
+				console.log("answer");
+				console.log(answer);
+   				peerConnection.setRemoteDescription(new RTCSessionDescription(answer)); 
+   				readyForCandidate = true;
+   				handleCandidate(candidates);
+			};
+			//when we got an ice candidate from a remote user
+			  candidates = [];
+			function handleCandidate(candidate) { 
+				if(!readyForCandidate) {
+					candidates.push(candidate);
+
+				}else {
+					var i = 0;
+					for(i = 0; i < candidates.length; i ++) {
+						console.log("handleCandidate: ");
+						console.log(candidate);
+  				 		peerConnection.addIceCandidate(new RTCIceCandidate(candidates[i]));
+					}
+					
+				}
+				
+			};
+			/// handdle file size and name
+			function handleFile(file){
+				fileSize = file.fileSize;
+				fileName = file.fileName;
+
+				// setup progress bar
+				$('progress#receive').attr('max', fileSize);
+				// now we can send file cuz we notify the file info to the offerer
+				if(!offerer){
+					sendFile();
+				}
+				console.log("file size:" + file.fileSize + "file Name: " + file.fileName);
+
+			};
+
+			// when got message(file) on datachanl
+			function onmessageHandler(event){
+
+				// put chunk to array
+				receiveBuffer.push(event.data);
+				receivedSize = receivedSize + event.data.byteLength;
+				//adjust receivedSize
+				console.log("receivedSize: "+ receivedSize+ "fileSize: "+fileSize);
+				$('progress#receive').attr('value', receivedSize);
+				if(fileSize === 0){
+					return;
+				}
+				if(receivedSize === fileSize || receivedSize >= fileSize){
+					alert("file uploaded click the link");
+					console.log(fileSize);
+					receivedSize = 0;
+					var receivedBlob = new window.Blob(receiveBuffer);
+					receiveBuffer = [];
+
+					$('#download').attr('href', URL.createObjectURL(receivedBlob));
+					$('#download').attr('download', fileName);
+					$('#download').text('Click To download');
+					$('#download').attr('display', 'block');
+
+
+				}
+
+			}
+
+////////////////////////////file input handler /////////////////////////
+
+			$('input[type=file]').on('change',function(){
+				//reset to null text on anchor tag
+				$('#download').text('');
+				// get file from input file type
+				file  = $('input[type=file]')[0].files[0];
+				var fileSize = file.size;
+				var fileName = file.name;
+
+				if(fileSize > maxSendingFile){
+					alert("choose file under 4gb plz ^^ ");
+					file = NaN;
+				}else {
+				// send file info to the other end channel through websocket
+				var fileObj = {fileSize: file.size, fileName: fileName};
+				var obj = {type: "file", file: fileObj};
+				socket.send(JSON.stringify(obj));
+				//display file name that user choose
+
+				$('#chatArea').prepend(file.name);
+				$('ul').prepend();
+				console.log("input file on changed "+ file);
+				// set send progress'max with file size
+				$('progress#send').attr('max', fileSize);
+				$('#receive-progress').hide();
+				$('#send-progress').show();
+
+
+				}
+
+			});
+
+/////////////////////////////file function //////////////////////////////////////
+			function sendFile(){
+
+				//now it will send data though rtcChannel chunk by chunk simultaniuosly reading as well cunk by chunk
+				var sliceFile = function (offset){
+					var reader = new window.FileReader();
+					// set onload function as closure so that it will capture offset
+					//
+					reader.onload = (function(){
+						return function(e){
+							console.log(e.target.result.byteLength);
+							receivedChannel.send(e.target.result);
+							
+
+							if(file.size > offset + e.target.result.byteLength){
+								window.setTimeout(sliceFile, 0, offset + chunkSize);
+							}
+
+							$('progress#send').attr('value', offset + e.target.result.byteLength);
+
+						};
+					})(file);
+
+					var slice = file.slice (offset, offset + chunkSize);
+					reader.readAsArrayBuffer(slice);
+
+
+				};
+				sliceFile(0);
+			}
+		}); // document ready function finished
+	</script>
+	</div> 
+</body>
+
+</html>
